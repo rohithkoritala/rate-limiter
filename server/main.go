@@ -12,19 +12,19 @@ import (
 )
 
 func main() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+	rdb := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+		Password: "",
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		log.Fatalf("Could not connect to Redis: %v", err)
+		log.Fatalf("Could not connect to Redis Cluster: %v", err)
 	}
-	// Create limiter
-	ratelimiter := limiter.NewInMemoryLimiter()
+
+	// Create Redis-based limiter
+	ratelimiter := limiter.NewRedisClusterLimiter(rdb)
 
 	// Set up API routes
 	handler := api.NewHandler(ratelimiter)

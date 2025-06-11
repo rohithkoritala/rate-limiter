@@ -12,18 +12,21 @@ import (
 )
 
 type RedisLimiter struct {
-	rdb *redis.Client
+	rdb *redis.ClusterClient
 }
 
-func NewRedisLimiter(rdb *redis.Client) *RedisLimiter {
+func NewRedisClusterLimiter(rdb *redis.ClusterClient) *RedisLimiter {
 	return &RedisLimiter{rdb: rdb}
 }
 
 func (r *RedisLimiter) SetRate(key string, rate float64, burst int) {
-	r.rdb.HSet(context.Background(), fmt.Sprintf("rate:%s", key), map[string]interface{}{
+	ctx := context.Background()
+	rateKey := fmt.Sprintf("rate:%s", key)
+	r.rdb.HSet(ctx, rateKey, map[string]interface{}{
 		"rate":  rate,
 		"burst": burst,
 	})
+	r.rdb.Expire(ctx, rateKey, 24*time.Hour) // Set TTL for cleanup
 }
 
 var luaScript = redis.NewScript(`
@@ -38,17 +41,22 @@ end
 local rate = tonumber(rate_data[2])
 local burst = tonumber(rate_data[4])
 local now = tonumber(ARGV[1])
+local ttl = tonumber(ARGV[2])
+
 local last_time = tonumber(redis.call('HGET', token_key, 'ts') or 0)
 local tokens = tonumber(redis.call('HGET', token_key, 'tokens') or burst)
 
 local elapsed = now - last_time
 local refill = elapsed * rate
 local new_tokens = math.min(tokens + refill, burst)
+
 if new_tokens < 1 then
   redis.call('HSET', token_key, 'tokens', new_tokens, 'ts', now)
+  redis.call('EXPIRE', token_key, ttl)
   return 0  -- rate limited
 else
   redis.call('HSET', token_key, 'tokens', new_tokens - 1, 'ts', now)
+  redis.call('EXPIRE', token_key, ttl)
   return 1  -- allowed
 end
 `)

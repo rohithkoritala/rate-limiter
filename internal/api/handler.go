@@ -8,10 +8,10 @@ import (
 )
 
 type Handler struct {
-	limiter *limiter.Limiter
+	limiter *limiter.RedisLimiter
 }
 
-func NewHandler(l *limiter.Limiter) http.Handler {
+func NewHandler(l *limiter.RedisLimiter) http.Handler {
 	h := &Handler{limiter: l}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/check", h.checkRateLimit)
