@@ -21,7 +21,7 @@ func NewRedisClusterLimiter(rdb *redis.ClusterClient) *RedisLimiter {
 
 func (r *RedisLimiter) SetRate(key string, rate float64, burst int) {
 	ctx := context.Background()
-	rateKey := fmt.Sprintf("rate:%s", key)
+	rateKey := fmt.Sprintf("rate:{%s}", key)
 	r.rdb.HSet(ctx, rateKey, map[string]interface{}{
 		"rate":  rate,
 		"burst": burst,
@@ -63,11 +63,12 @@ end
 
 func (r *RedisLimiter) Allow(key string) bool {
 	ctx := context.Background()
-	rateKey := fmt.Sprintf("rate:%s", key)
-	tokenKey := fmt.Sprintf("bucket:%s", key)
+	rateKey := fmt.Sprintf("rate:{%s}", key)
+	tokenKey := fmt.Sprintf("bucket:{%s}", key)
 	now := time.Now().Unix()
+	ttlSeconds := int64(24 * 60 * 60)
 
-	result, err := luaScript.Run(ctx, r.rdb, []string{rateKey, tokenKey}, now).Int()
+	result, err := luaScript.Run(ctx, r.rdb, []string{rateKey, tokenKey}, now, ttlSeconds).Int()
 	if err != nil {
 		fmt.Printf("Redis error: %v\n", err)
 		return true // fail open

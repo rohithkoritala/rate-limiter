@@ -13,7 +13,7 @@ import (
 
 func main() {
 	rdb := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+		Addrs:    []string{"127.0.0.1:7000", "127.0.0.1:7001", "127.0.0.1:7002", "127.0.0.1:7003", "127.0.0.1:7004", "127.0.0.1:7005"},
 		Password: "",
 	})
 
@@ -25,6 +25,7 @@ func main() {
 
 	// Create Redis-based limiter
 	ratelimiter := limiter.NewRedisClusterLimiter(rdb)
+	ratelimiter.SetRate("user123", 1, 5)
 
 	// Set up API routes
 	handler := api.NewHandler(ratelimiter)
