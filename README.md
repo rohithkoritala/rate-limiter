@@ -4,7 +4,6 @@
 
 A high-performance distributed rate limiter built in Go, with **Redis Clusters** and **atomic Lua scripting** for safe, consistent multi-instance coordination. It provides precise token bucket control and is production-ready for cloud or containerized environments.
 
----
 
 ## ✨ Features
 
@@ -58,8 +57,6 @@ curl "http://localhost:8080/check?key=user123"
 ```bash
 ./stress_test.sh
 ```
-
----
 
 ## 🚧 Roadmap
 
