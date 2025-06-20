@@ -55,7 +55,7 @@ curl "http://localhost:8080/check?key=user123"
 4. **Run the stress test:**
 
 ```bash
-./stress_test.sh
+./test/check.sh
 ```
 
 ## 🚧 Roadmap
