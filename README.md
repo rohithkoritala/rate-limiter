@@ -57,8 +57,7 @@ curl "http://localhost:8080/check?key=user123"
 ```bash
 ./test/check.sh
 ```
-or
-To use grafana k6 load testing:
+Or stress test with Grafana:
 ```bash
 node test.js
 ```
