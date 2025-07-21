@@ -57,6 +57,11 @@ curl "http://localhost:8080/check?key=user123"
 ```bash
 ./test/check.sh
 ```
+or
+To use grafana k6 load testing:
+```bash
+node test.js
+```
 
 ## 🚧 Roadmap
 
@@ -70,6 +75,6 @@ curl "http://localhost:8080/check?key=user123"
 * [ ] Kubernetes deployment YAMLs
 
 
-PRs and ideas welcome! This project is designed to teach, scale, and evolve
+PRs and ideas welcome! I started this project to learn new skills.
 
 MIT License. Free to use and extend.
