@@ -55,7 +55,7 @@ curl "http://localhost:8080/check?key=user123"
 4. **Run the stress test:**
 
 ```bash
-./test/check.sh
+./test_check.sh
 ```
 Or stress test with Grafana:
 ```bash
